@@ -4,7 +4,6 @@ import Orders from './pages/Orders';
 import AddOrder from './pages/AddOrder';
 import Tailors from './pages/Tailors';
 import { useEffect, useState, createContext, useContext } from 'react';
-import { syncOfflineActions } from './store/sync';
 import { translations } from './utils/i18n';
 
 // ============================================================
@@ -109,13 +108,12 @@ function App() {
     localStorage.setItem('app_lang', lang);
   }, [lang]);
 
-  // Online/offline sync
+  // Online/offline state monitoring
   useEffect(() => {
-    const handleOnline = () => { setIsOnline(true); syncOfflineActions(); };
+    const handleOnline = () => { setIsOnline(true); };
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    if (navigator.onLine) syncOfflineActions();
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);

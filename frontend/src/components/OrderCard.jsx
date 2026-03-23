@@ -8,8 +8,9 @@ const WORKFLOW = ['CREATED', 'GIVEN', 'STITCHING', 'BUTTONS', 'PRESS', 'DELIVERE
 
 const getImageUrl = (url) => {
   if (!url) return null;
-  if (url.startsWith('data:')) return url;
-  return `http://localhost:5000${url}`;
+  if (url.startsWith('data:') || url.startsWith('http')) return url;
+  return `http://localhost:5000${url}`; // legacy fallback if relative
+  // Supabase URLs are absolute "https://...", so they will match above.
 };
 
 export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDelete }) {
