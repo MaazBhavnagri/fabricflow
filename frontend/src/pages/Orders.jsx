@@ -13,7 +13,7 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [tailors, setTailors] = useState([]);
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState('IN_PROGRESS');
 
   // Load directly from IndexedDB — no backend dependency
   const loadData = async () => {
@@ -92,6 +92,7 @@ export default function Orders() {
         ].map(([key, label]) => (
           <button
             key={key}
+            id={key === 'IN_PROGRESS' ? 'defaultfilter' : undefined}
             onClick={() => setFilterStatus(key)}
             className={`whitespace-nowrap px-4 py-1.5 md:px-5 md:py-2 rounded-full font-bold text-[11px] md:text-sm transition-all border ${
               filterStatus === key

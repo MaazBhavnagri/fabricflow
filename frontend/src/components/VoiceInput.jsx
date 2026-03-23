@@ -1,7 +1,7 @@
 import { Mic, MicOff } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-export default function VoiceInput({ value, onChange, placeholder, className, required, type = "text", multiline = false, rows = 3 }) {
+export default function VoiceInput({ value, onChange, placeholder, className, required, type = "text", multiline = false, rows = 3, isNumeric = false }) {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
 
@@ -22,8 +22,12 @@ export default function VoiceInput({ value, onChange, placeholder, className, re
           }
         }
         if (finalTranscript) {
-           const separator = (value && value.trim().length > 0) ? ' ' : '';
-           onChange(value + separator + finalTranscript.trim());
+           let processedTranscript = finalTranscript.trim();
+           if (isNumeric) {
+             processedTranscript = processedTranscript.replace(/\s+/g, '').replace(/\D/g, '');
+           }
+           const separator = (value && value.trim().length > 0 && !isNumeric) ? ' ' : '';
+           onChange(value + separator + processedTranscript);
         }
       };
       

@@ -1,4 +1,5 @@
-import { Phone, Edit2, Trash2, Camera, Navigation, Scissors, Volume2 } from 'lucide-react';
+import { Phone, Edit2, Trash2, Camera, Navigation, Scissors, Volume2, X } from 'lucide-react';
+import { useState } from 'react';
 import WorkflowStepper from './WorkflowStepper';
 import { speak } from '../utils/audio';
 import { getLang } from '../utils/i18n';
@@ -14,6 +15,7 @@ const getImageUrl = (url) => {
 };
 
 export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDelete }) {
+  const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const { t } = useApp();
   const isCompleted = order.status === 'DELIVERED';
   const tailor = tailors.find(tObj => tObj.id == order.tailor_id || tObj.name === order.tailor_id) || { name: t('unassigned') };
@@ -55,7 +57,9 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
           {/* Cloth type • Order ID */}
           <p className="text-[11px] md:text-[12px] text-gray-500 dark:text-gray-400 truncate flex items-center gap-1 mt-0.5">
             <Scissors size={9} className="shrink-0" />
-            <span className="truncate">{order.cloth_type}</span>
+            <span id="clothdisplay" className="truncate">
+              {Array.isArray(order.cloth_type) ? order.cloth_type.join(', ') : order.cloth_type}
+            </span>
             <span className="shrink-0 mx-0.5">•</span>
             <span className="font-bold text-gray-700 dark:text-gray-300 shrink-0">{order.order_id || t('syncing')}</span>
           </p>
@@ -95,6 +99,15 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
         )}
       </div>
 
+      {order.measurement_image_url && (
+        <div 
+          className="w-full h-[60px] md:h-[80px] rounded-lg bg-gray-100 dark:bg-black/40 overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={() => setShowMeasurementModal(true)}
+        >
+          <img id="measurefield" loading="lazy" src={getImageUrl(order.measurement_image_url)} alt="Measurement" className="w-full h-full object-cover object-top pointer-events-none" />
+        </div>
+      )}
+
       {/* ── Row 2: Special Instructions (1 line) ── */}
       {order.instructions_text && (
         <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-lg px-2 py-1">
@@ -133,6 +146,24 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
           <Navigation size={12} className="rotate-90" />
           {t('mark')} {t('status_' + nextStatus)}
         </button>
+      )}
+
+      {/* ── Measurement Fullscreen Modal ── */}
+      {showMeasurementModal && order.measurement_image_url && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#000000e6] p-4 backdrop-blur-sm" onClick={() => setShowMeasurementModal(false)}>
+          <button 
+            className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 z-[101] transition-colors"
+            onClick={(e) => { e.stopPropagation(); setShowMeasurementModal(false); }}
+          >
+            <X size={24} />
+          </button>
+          <img 
+            src={getImageUrl(order.measurement_image_url)} 
+            alt="Measurement Fullscreen" 
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </div>
   );

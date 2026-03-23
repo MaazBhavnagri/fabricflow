@@ -21,7 +21,7 @@ export default function AddOrder() {
 
   const [customerName,   setCustomerName]   = useState('');
   const [customerPhone,  setCustomerPhone]  = useState('');
-  const [clothType,      setClothType]      = useState('');
+  const [clothType,      setClothType]      = useState([]);
   const [customCloth,    setCustomCloth]    = useState('');
   const [fabricImage,    setFabricImage]    = useState(null);
   const [measureImage,   setMeasureImage]   = useState(null);
@@ -42,12 +42,29 @@ export default function AddOrder() {
         if (order) {
           setCustomerName(order.customer_name || '');
           setCustomerPhone(order.customer_phone || '');
-          if (CLOTH_TYPES.includes(order.cloth_type)) {
-            setClothType(order.cloth_type);
-          } else {
-            setClothType('Other');
-            setCustomCloth(order.cloth_type || '');
+          const existingClothTypeArray = Array.isArray(order.cloth_type) 
+            ? order.cloth_type 
+            : typeof order.cloth_type === 'string' && order.cloth_type !== ''
+              ? [order.cloth_type] 
+              : [];
+          
+          const standardTypes = [];
+          const customTypes = [];
+
+          existingClothTypeArray.forEach(type => {
+            if (CLOTH_TYPES.includes(type)) {
+              standardTypes.push(type);
+            } else {
+              customTypes.push(type);
+            }
+          });
+
+          if (customTypes.length > 0) {
+            standardTypes.push('Other');
+            setCustomCloth(customTypes.join(', '));
           }
+
+          setClothType(standardTypes);
           setFabricImage(order.image_url || null);
           setMeasureImage(order.measurement_image_url || null);
           setInstructions(order.instructions_text || '');
@@ -70,8 +87,15 @@ export default function AddOrder() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    const finalCloth = clothType === 'Other' ? customCloth : clothType;
-    if (!customerName || !finalCloth || !customerPhone) {
+    let finalCloth = [...clothType];
+    if (finalCloth.includes('Other')) {
+      finalCloth = finalCloth.filter(t => t !== 'Other');
+      if (customCloth) {
+        finalCloth.push(customCloth);
+      }
+    }
+
+    if (!customerName || finalCloth.length === 0 || !customerPhone) {
       return alert(t('req_fields_err'));
     }
 
@@ -130,13 +154,14 @@ export default function AddOrder() {
           </div>
           <div>
             <label className="block text-gray-800 dark:text-gray-300 font-bold text-sm md:text-lg mb-1.5 md:mb-3">{t('customer_phone')}</label>
-            <input
+            <VoiceInput
               type="tel"
-              placeholder={t('customer_phone_ph')}
               value={customerPhone}
-              onChange={e => setCustomerPhone(e.target.value)}
+              onChange={setCustomerPhone}
+              placeholder={t('customer_phone_ph')}
               className="w-full text-sm md:text-xl p-3 md:p-5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#252525] rounded-xl md:rounded-2xl focus:bg-white dark:focus:bg-[#1e1e1e] focus:border-indigo-500 focus:ring-2 md:focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 font-bold tracking-widest text-gray-900 dark:text-white"
-              required
+              required={true}
+              isNumeric={true}
             />
           </div>
         </div>
@@ -151,9 +176,11 @@ export default function AddOrder() {
               <button
                 key={type}
                 type="button"
-                onClick={() => setClothType(type)}
+                onClick={() => setClothType(prev => 
+                  prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                )}
                 className={`py-[6px] px-3 md:py-3 md:px-5 rounded-lg md:rounded-xl text-xs md:text-base font-bold transition-all border flex-grow sm:flex-grow-0 text-center ${
-                  clothType === type
+                  clothType.includes(type)
                     ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-500 shadow-sm'
                     : 'bg-white dark:bg-[#252525] border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 shadow-sm'
                 }`}
@@ -162,7 +189,7 @@ export default function AddOrder() {
               </button>
             ))}
           </div>
-          {clothType === 'Other' && (
+          {clothType.includes('Other') && (
             <div className="mt-3 md:mt-5 animate-in fade-in slide-in-from-top-2">
               <label className="block text-gray-800 dark:text-gray-300 font-bold text-sm md:text-lg mb-1.5 md:mb-3">{t('custom_cloth')}</label>
               <VoiceInput
@@ -170,7 +197,7 @@ export default function AddOrder() {
                 onChange={setCustomCloth}
                 placeholder={t('custom_cloth_ph')}
                 className="w-full text-sm md:text-xl p-3 md:p-5 border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl md:rounded-2xl focus:bg-white dark:focus:bg-[#1e1e1e] focus:border-indigo-500 focus:ring-2 md:focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition-all font-bold text-gray-900 dark:text-white"
-                required={clothType === 'Other'}
+                required={clothType.includes('Other')}
               />
             </div>
           )}
