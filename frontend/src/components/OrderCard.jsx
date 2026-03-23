@@ -49,10 +49,17 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
         {/* Details */}
         <div className="flex-1 min-w-0 pr-7 md:pr-8">
 
-          {/* Customer name */}
-          <h3 className="text-[14px] md:text-[16px] font-bold text-gray-900 dark:text-white leading-tight truncate uppercase">
-            {order.customer_name}
-          </h3>
+          {/* Customer name + Date */}
+          <div className="flex justify-between items-start gap-1">
+            <h3 className="text-[14px] md:text-[16px] font-bold text-gray-900 dark:text-white leading-tight truncate uppercase">
+              {order.customer_name}
+            </h3>
+            {order.created_at && (
+              <span className="text-[10px] md:text-[11px] text-gray-400 dark:text-gray-500 shrink-0 whitespace-nowrap mt-0.5 font-medium">
+                {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+            )}
+          </div>
 
           {/* Cloth type • Order ID */}
           <p className="text-[11px] md:text-[12px] text-gray-500 dark:text-gray-400 truncate flex items-center gap-1 mt-0.5">
