@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home, PlusCircle, Users, Sun, Moon } from 'lucide-react';
+import { Home, PlusCircle, Users, Sun, Moon, Scissors } from 'lucide-react';
 import Orders from './pages/Orders';
 import AddOrder from './pages/AddOrder';
 import Tailors from './pages/Tailors';
+import TailorWorkDashboard from './pages/TailorWorkDashboard';
+import AddTailorWork from './pages/AddTailorWork';
+import TailorWorkDetail from './pages/TailorWorkDetail';
 import { useEffect, useState, createContext, useContext } from 'react';
 import { translations } from './utils/i18n';
 
@@ -51,6 +54,13 @@ function NavLinks() {
           <Users size={22} />
           <span className="text-[10px] font-bold">{t('tailors')}</span>
         </Link>
+        <Link
+          to="/tailor-work"
+          className={`flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-colors ${isActive('/tailor-work') || location.pathname.startsWith('/tailor-work') ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500 hover:text-indigo-500'}`}
+        >
+          <Scissors size={22} />
+          <span className="text-[10px] font-bold">{t('tailor_work')}</span>
+        </Link>
       </div>
 
       {/* Desktop Center Nav (inside header) — rendered separately below */}
@@ -83,6 +93,12 @@ function DesktopNav() {
         className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActive('/tailors') ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-gray-200'}`}
       >
         <Users size={16} /> {t('tailors')}
+      </Link>
+      <Link
+        to="/tailor-work"
+        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActive('/tailor-work') || location.pathname.startsWith('/tailor-work') ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-gray-200'}`}
+      >
+        <Scissors size={16} /> {t('tailor_work')}
       </Link>
     </div>
   );
@@ -194,6 +210,9 @@ function App() {
               <Route path="/add" element={<AddOrder />} />
               <Route path="/edit/:id" element={<AddOrder />} />
               <Route path="/tailors" element={<Tailors />} />
+              <Route path="/tailor-work" element={<TailorWorkDashboard />} />
+              <Route path="/tailor-work/add" element={<AddTailorWork />} />
+              <Route path="/tailor-work/:id" element={<TailorWorkDetail />} />
             </Routes>
           </main>
 
