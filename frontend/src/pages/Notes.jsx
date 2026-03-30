@@ -201,19 +201,17 @@ export default function Notes() {
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
       {/* Search Bar */}
-      <div className="sticky top-[56px] z-10 bg-gray-50/95 dark:bg-[#121212]/95 backdrop-blur-md pb-2 pt-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:top-0">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={18} className="text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder={t('search_notes')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1e1e1e] border-none rounded-2xl shadow-sm text-sm focus:ring-2 focus:ring-indigo-500 font-medium"
-          />
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search size={18} className="text-gray-400" />
         </div>
+        <input
+          type="text"
+          placeholder={t('search_notes')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-4 py-4 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm text-sm focus:ring-2 focus:ring-indigo-500 font-medium transition-all"
+        />
       </div>
 
       {/* Add Note Button / Input Area */}
