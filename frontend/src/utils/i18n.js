@@ -105,7 +105,20 @@ export const translations = {
     "status_STITCHING": "Stitching In Progress",
     "status_BUTTONS": "Buttons Pending",
     "status_PRESS": "Press Pending",
-    "status_DELIVERED": "Delivered"
+    "status_DELIVERED": "Delivered",
+
+    // Notes Module
+    "notes_title": "Notes",
+    "add_note_btn": "Add Note",
+    "add_note": "Add a new note...",
+    "search_notes": "Search notes...",
+    "edit_note": "Edit Note",
+    "save_note": "Save",
+    "del_note_conf": "Are you sure you want to delete this note?",
+    "pin_note": "Pin",
+    "unpin_note": "Unpin",
+    "play_note": "Play",
+    "stop_note": "Stop"
   },
   hn: {
     "app_title": "FabricFlow",
@@ -210,7 +223,20 @@ export const translations = {
     "status_STITCHING": "Silaai chal rahi hai",
     "status_BUTTONS": "Button baaki hain",
     "status_PRESS": "Press baaki hai",
-    "status_DELIVERED": "Customer ko de diya"
+    "status_DELIVERED": "Customer ko de diya",
+
+    // Notes Module
+    "notes_title": "Notes",
+    "add_note_btn": "Note Jodein",
+    "add_note": "Naya note likhein...",
+    "search_notes": "Notes dhundhein...",
+    "edit_note": "Note Edit Karein",
+    "save_note": "Save",
+    "del_note_conf": "Kya aap iss note ko hatana chahte hain?",
+    "pin_note": "Upar Rakhein",
+    "unpin_note": "Niche Rakhein",
+    "play_note": "Sunein",
+    "stop_note": "Rukein"
   },
   gu: {
     "app_title": "FabricFlow",
@@ -315,7 +341,20 @@ export const translations = {
     "status_STITCHING": "સિલાઈ ચાલુ છે",
     "status_BUTTONS": "બટન બાકી છે",
     "status_PRESS": "પ્રેસ બાકી છે",
-    "status_DELIVERED": "ગ્રાહકને આપી દીધું"
+    "status_DELIVERED": "ગ્રાહકને આપી દીધું",
+
+    // Notes Module
+    "notes_title": "નોંધો (Notes)",
+    "add_note_btn": "નોંધ ઉમેરો",
+    "add_note": "નવી નોંધ લખો...",
+    "search_notes": "નોંધો શોધો...",
+    "edit_note": "નોંધ સુધારો",
+    "save_note": "સાચવો",
+    "del_note_conf": "શું તમે આ નોંધ કાઢી નાખવા માંગો છો?",
+    "pin_note": "પિન કરો",
+    "unpin_note": "અનપિન કરો",
+    "play_note": "સાંભળો",
+    "stop_note": "બંધ કરો"
   }
 };
 
