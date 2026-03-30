@@ -32,8 +32,8 @@ export default function Notes() {
     // Setup Speech Recognition
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.interimResults = false;
       
       recognition.onstart = () => {
         setIsRecording(true);
@@ -41,15 +41,17 @@ export default function Notes() {
       
       recognition.onresult = (event) => {
         let finalTranscript = '';
+        
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
+            finalTranscript += event.results[i][0].transcript + ' ';
           }
         }
         
-        if (finalTranscript) {
-          setNoteContent((prev) => (prev + ' ' + finalTranscript).trim());
+        if (finalTranscript.trim()) {
+          setTimeout(() => {
+            setNoteContent((prev) => (prev + ' ' + finalTranscript).replace(/\s+/g, ' ').trim());
+          }, 150);
         }
       };
       
