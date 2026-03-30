@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../App';
-import { Mic, Search, Plus, Pin, Play, Square, Edit, Trash2, X, FileText } from 'lucide-react';
+import { Search, Plus, Pin, Play, Square, Edit, Trash2, X, FileText } from 'lucide-react';
 import { getNotes, addNote, updateNote, deleteNote } from '../store/notesService';
-
-// Initialize Speech Recognition if supported
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+import VoiceInput from '../components/VoiceInput';
 
 export default function Notes() {
   const { t, lang } = useApp();
@@ -19,71 +17,17 @@ export default function Notes() {
   const [editingId, setEditingId] = useState(null);
   const [noteContent, setNoteContent] = useState('');
 
-  // Voice recording state
-  const [isRecording, setIsRecording] = useState(false);
-  const recognitionRef = useRef(null);
-
   // Audio Playback state
   const [playingId, setPlayingId] = useState(null);
 
   useEffect(() => {
     loadNotes();
     
-    // Setup Speech Recognition
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      
-      recognition.onstart = () => {
-        setIsRecording(true);
-      };
-      
-      recognition.onresult = (event) => {
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript + ' ';
-          }
-        }
-        
-        if (finalTranscript.trim()) {
-          setTimeout(() => {
-            setNoteContent((prev) => (prev + ' ' + finalTranscript).replace(/\s+/g, ' ').trim());
-          }, 150);
-        }
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-        setIsRecording(false);
-      };
-      
-      recognition.onend = () => {
-        setIsRecording(false);
-      };
-      
-      recognitionRef.current = recognition;
-    }
-    
     return () => {
       // Cleanup
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
       window.speechSynthesis.cancel();
     };
   }, []);
-
-  // Update recognition language based on app language
-  useEffect(() => {
-    if (recognitionRef.current) {
-      if (lang === 'hn') recognitionRef.current.lang = 'hi-IN';
-      else if (lang === 'gu') recognitionRef.current.lang = 'gu-IN';
-      else recognitionRef.current.lang = 'en-US';
-    }
-  }, [lang]);
 
   const loadNotes = async () => {
     setIsLoading(true);
@@ -156,22 +100,6 @@ export default function Notes() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const toggleRecording = () => {
-    if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in this browser.');
-      return;
-    }
-
-    if (isRecording) {
-      recognitionRef.current.stop();
-    } else {
-      try {
-        recognitionRef.current.start();
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  };
 
   const playAudio = (id, text) => {
     if (playingId === id) {
@@ -238,7 +166,6 @@ export default function Notes() {
                 setIsAdding(false);
                 setEditingId(null);
                 setNoteContent('');
-                if (isRecording && recognitionRef.current) recognitionRef.current.stop();
               }}
               className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
             >
@@ -247,26 +174,17 @@ export default function Notes() {
           </div>
           
           <div className="relative mb-4">
-            <textarea
+            <VoiceInput
               value={noteContent}
-              onChange={(e) => setNoteContent(e.target.value)}
+              onChange={setNoteContent}
               placeholder={t('add_note')}
-              className={`w-full min-h-[120px] p-3 rounded-xl bg-gray-50 dark:bg-[#121212] border ${isRecording ? 'border-red-400 shadow-[0_0_0_4px_rgba(248,113,113,0.1)]' : 'border-gray-200 dark:border-gray-800'} text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none font-medium transition-all`}
+              className="w-full min-h-[120px] p-3 rounded-xl bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none font-medium transition-all text-gray-900 dark:text-gray-100"
+              multiline={true}
+              rows={5}
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <button
-              onClick={toggleRecording}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
-                isRecording 
-                  ? 'bg-red-50 dark:bg-red-900/30 text-red-500 animate-pulse border border-red-200 dark:border-red-800' 
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
-              {isRecording ? <Square size={20} /> : <Mic size={20} />}
-            </button>
-            
+          <div className="flex items-center justify-end">
             <button
               onClick={handleSaveNote}
               disabled={!noteContent.trim()}
@@ -275,13 +193,6 @@ export default function Notes() {
               {editingId ? t('save_note') : t('add_note_btn')}
             </button>
           </div>
-          
-          {isRecording && (
-            <div className="mt-3 text-xs text-red-500 font-semibold flex items-center gap-1.5 animate-pulse">
-              <span className="w-2 h-2 rounded-full bg-red-500"></span>
-              Listening...
-            </div>
-          )}
         </div>
       )}
 
