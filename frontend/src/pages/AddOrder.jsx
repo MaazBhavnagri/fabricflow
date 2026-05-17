@@ -27,6 +27,7 @@ export default function AddOrder() {
   const [measureImage,   setMeasureImage]   = useState(null);
   const [instructions,   setInstructions]   = useState('');
   const [tailorId,       setTailorId]       = useState('');
+  const [deliveryDate,   setDeliveryDate]   = useState('');
   const [tailors,        setTailors]        = useState([]);
   const [saving,         setSaving]         = useState(false);
 
@@ -69,6 +70,7 @@ export default function AddOrder() {
           setMeasureImage(order.measurement_image_url || null);
           setInstructions(order.instructions_text || '');
           setTailorId(order.tailor_id || '');
+          setDeliveryDate(order.delivery_date || '');
         }
       } else if (tList.length > 0) {
         setTailorId(tList[0].id);
@@ -109,6 +111,7 @@ export default function AddOrder() {
         tailor_id:             tailorId || null,
         image_url:             fabricImage,            // base64 stored in IndexedDB
         measurement_image_url: measureImage,
+        delivery_date:         deliveryDate || null,
       };
 
       if (id) {
@@ -162,6 +165,15 @@ export default function AddOrder() {
               className="w-full text-sm md:text-xl p-3 md:p-5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#252525] rounded-xl md:rounded-2xl focus:bg-white dark:focus:bg-[#1e1e1e] focus:border-indigo-500 focus:ring-2 md:focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 font-bold tracking-widest text-gray-900 dark:text-white"
               required={true}
               isNumeric={true}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-800 dark:text-gray-300 font-bold text-sm md:text-lg mb-1.5 md:mb-3">{t('delivery_date')}</label>
+            <input
+              type="date"
+              value={deliveryDate}
+              onChange={e => setDeliveryDate(e.target.value)}
+              className="w-full text-sm md:text-xl p-3 md:p-5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#252525] rounded-xl md:rounded-2xl focus:bg-white dark:focus:bg-[#1e1e1e] focus:border-indigo-500 focus:ring-2 md:focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition-all font-bold text-gray-900 dark:text-white cursor-pointer"
             />
           </div>
         </div>

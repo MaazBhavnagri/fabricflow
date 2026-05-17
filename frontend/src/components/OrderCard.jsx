@@ -1,4 +1,4 @@
-import { Phone, Edit2, Trash2, Camera, Navigation, Scissors, Volume2, X } from 'lucide-react';
+import { Phone, Edit2, Trash2, Camera, Navigation, Scissors, Volume2, X, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import WorkflowStepper from './WorkflowStepper';
 import { speak } from '../utils/audio';
@@ -12,6 +12,24 @@ const getImageUrl = (url) => {
   if (url.startsWith('data:') || url.startsWith('http')) return url;
   return `http://localhost:5000${url}`; // legacy fallback if relative
   // Supabase URLs are absolute "https://...", so they will match above.
+};
+
+const getClothTypesArray = (clothType) => {
+  if (!clothType) return [];
+  if (Array.isArray(clothType)) return clothType;
+  if (typeof clothType === 'string') {
+    const trimmed = clothType.trim();
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Fallback
+      }
+    }
+    return trimmed.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return [String(clothType)];
 };
 
 export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDelete }) {
@@ -61,15 +79,22 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
             )}
           </div>
 
-          {/* Cloth type • Order ID */}
-          <p className="text-[11px] md:text-[12px] text-gray-500 dark:text-gray-400 truncate flex items-center gap-1 mt-0.5">
-            <Scissors size={9} className="shrink-0" />
-            <span id="clothdisplay" className="truncate">
-              {Array.isArray(order.cloth_type) ? order.cloth_type.join(', ') : order.cloth_type}
-            </span>
-            <span className="shrink-0 mx-0.5">•</span>
-            <span className="font-bold text-gray-700 dark:text-gray-300 shrink-0">{order.order_id || t('syncing')}</span>
-          </p>
+          {/* Cloth type badges + Order ID */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-1 min-w-0">
+            <Scissors size={9} className="text-gray-400 shrink-0" />
+            <div id="clothdisplay" className="flex flex-wrap gap-1 items-center min-w-0">
+              {getClothTypesArray(order.cloth_type).map((type, idx) => (
+                <span
+                  key={idx}
+                  className="text-[9px] md:text-[10px] font-extrabold bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-900/30 uppercase tracking-wider whitespace-nowrap"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+            <span className="text-gray-300 dark:text-gray-700 shrink-0 text-[10px]">•</span>
+            <span className="font-bold text-gray-700 dark:text-gray-300 text-[10px] md:text-[11px] shrink-0">{order.order_id || t('syncing')}</span>
+          </div>
 
           {/* Tailor + Phone */}
           <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
@@ -85,6 +110,14 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
               </a>
             )}
           </div>
+
+          {/* Delivery Date */}
+          {order.delivery_date && (
+            <div className="text-[10px] md:text-[11px] font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-1 mt-1 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 px-1.5 py-0.5 rounded-md w-fit">
+              <Calendar size={10} className="shrink-0" />
+              <span>{t('delivery_date')}: {new Date(order.delivery_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+            </div>
+          )}
         </div>
 
         {/* Edit / Delete – absolute top-right */}
@@ -115,16 +148,16 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
         </div>
       )}
 
-      {/* ── Row 2: Special Instructions (1 line) ── */}
+      {/* ── Row 2: Special Instructions ── */}
       {order.instructions_text && (
-        <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-lg px-2 py-1">
-          <p className="text-[10px] md:text-[11px] text-gray-700 dark:text-gray-300 truncate flex-1 min-w-0">
+        <div className="flex items-start gap-1.5 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-lg px-2 py-1.5">
+          <p className="text-[10px] md:text-[11px] text-gray-700 dark:text-gray-300 flex-1 min-w-0 break-words whitespace-pre-wrap leading-relaxed">
             <span className="font-bold text-amber-700 dark:text-amber-500">{t('special_inst')}: </span>
             {order.instructions_text}
           </p>
           <button
             onClick={() => speak(order.instructions_text, getLang() === 'gu' ? 'gu-IN' : 'hi-IN')}
-            className="shrink-0 text-indigo-500 dark:text-indigo-400 p-0.5 active:scale-90"
+            className="shrink-0 text-indigo-500 dark:text-indigo-400 p-0.5 active:scale-90 mt-0.5"
           >
             <Volume2 size={12} />
           </button>

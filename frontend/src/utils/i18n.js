@@ -26,6 +26,8 @@ export const translations = {
     "save_order": "SAVE ORDER",
     "update_order": "UPDATE ORDER",
     "req_fields_err": "Name, Phone and Cloth Type are strictly required!",
+    "delivery_date": "Delivery Date",
+    "delivery_date_ph": "Select delivery date...",
     
     // Tailors
     "new_tailor": "New Tailor",
@@ -147,6 +149,8 @@ export const translations = {
     "save_order": "ORDER SAVE KARO",
     "update_order": "ORDER UPDATE KARO",
     "req_fields_err": "Naam, Phone aur Kapda likhna zaroori hai!",
+    "delivery_date": "डिलिवरी की तारीख",
+    "delivery_date_ph": "डिलिवरी की तारीख चुनें...",
     
     "new_tailor": "Naya Darji",
     "cancel": "Radd (Cancel)",
@@ -265,6 +269,8 @@ export const translations = {
     "save_order": "ઓર્ડર સાચવો",
     "update_order": "ઓર્ડર અપડેટ કરો",
     "req_fields_err": "નામ, ફોન અને કાપડ લખવું ફરજિયાત છે!",
+    "delivery_date": "ડિલિવરી તારીખ",
+    "delivery_date_ph": "ડિલિવરી તારીખ પસંદ કરો...",
     
     "new_tailor": "નવો દરજી",
     "cancel": "રદ કરો",

@@ -102,6 +102,7 @@ export async function saveOrder(orderData) {
     measurement_image_url: measurement_image_url || null,
     measurement_text:      orderData.measurement_text || '',
     status:                orderData.status || 'CREATED',
+    delivery_date:         orderData.delivery_date || null,
     created_at:            nowISO()
   };
 
