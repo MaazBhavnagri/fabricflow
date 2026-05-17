@@ -21,7 +21,7 @@ export default function AddOrder() {
 
   const [customerName,   setCustomerName]   = useState('');
   const [customerPhone,  setCustomerPhone]  = useState('');
-  const [clothType,      setClothType]      = useState([]);
+  const [clothCounts,    setClothCounts]    = useState({});
   const [customCloth,    setCustomCloth]    = useState('');
   const [fabricImage,    setFabricImage]    = useState(null);
   const [measureImage,   setMeasureImage]   = useState(null);
@@ -49,23 +49,31 @@ export default function AddOrder() {
               ? [order.cloth_type] 
               : [];
           
-          const standardTypes = [];
+          const parsedCounts = {};
           const customTypes = [];
 
-          existingClothTypeArray.forEach(type => {
-            if (CLOTH_TYPES.includes(type)) {
-              standardTypes.push(type);
+          existingClothTypeArray.forEach(item => {
+            const match = item.match(/^(.*?)(?:\s+(\d+))?$/);
+            if (match) {
+              const typeName = match[1].trim();
+              const count = match[2] ? parseInt(match[2], 10) : 1;
+              
+              if (CLOTH_TYPES.includes(typeName)) {
+                parsedCounts[typeName] = count;
+              } else {
+                customTypes.push(item);
+              }
             } else {
-              customTypes.push(type);
+              customTypes.push(item);
             }
           });
 
           if (customTypes.length > 0) {
-            standardTypes.push('Other');
+            parsedCounts['Other'] = 1;
             setCustomCloth(customTypes.join(', '));
           }
 
-          setClothType(standardTypes);
+          setClothCounts(parsedCounts);
           setFabricImage(order.image_url || null);
           setMeasureImage(order.measurement_image_url || null);
           setInstructions(order.instructions_text || '');
@@ -89,12 +97,13 @@ export default function AddOrder() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    let finalCloth = [...clothType];
-    if (finalCloth.includes('Other')) {
-      finalCloth = finalCloth.filter(t => t !== 'Other');
-      if (customCloth) {
-        finalCloth.push(customCloth);
-      }
+    let finalCloth = Object.entries(clothCounts).map(([type, count]) => {
+      if (type === 'Other') return null;
+      return `${type} ${count}`;
+    }).filter(Boolean);
+
+    if (clothCounts['Other'] && customCloth) {
+      finalCloth.push(customCloth);
     }
 
     if (!customerName || finalCloth.length === 0 || !customerPhone) {
@@ -184,24 +193,65 @@ export default function AddOrder() {
             {t('select_cloth')}
           </label>
           <div className="flex flex-wrap gap-2 md:gap-3">
-            {CLOTH_TYPES.map(type => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setClothType(prev => 
-                  prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                )}
-                className={`py-[6px] px-3 md:py-3 md:px-5 rounded-lg md:rounded-xl text-xs md:text-base font-bold transition-all border flex-grow sm:flex-grow-0 text-center ${
-                  clothType.includes(type)
-                    ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-500 shadow-sm'
-                    : 'bg-white dark:bg-[#252525] border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 shadow-sm'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
+            {CLOTH_TYPES.map(type => {
+              const isSelected = !!clothCounts[type];
+              const count = clothCounts[type] || 0;
+              return (
+                <div
+                  key={type}
+                  className={`flex items-stretch rounded-lg md:rounded-xl text-xs md:text-base font-bold transition-all border flex-grow sm:flex-grow-0 overflow-hidden ${
+                    isSelected
+                      ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-500 shadow-sm'
+                      : 'bg-white dark:bg-[#252525] border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 shadow-sm'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setClothCounts(prev => {
+                      const newCounts = { ...prev };
+                      if (newCounts[type]) delete newCounts[type];
+                      else newCounts[type] = 1;
+                      return newCounts;
+                    })}
+                    className="py-[6px] px-3 md:py-3 md:px-5 flex-1 text-center"
+                  >
+                    {type}
+                  </button>
+                  {isSelected && type !== 'Other' && (
+                    <div className="flex items-center bg-indigo-700 dark:bg-indigo-600 border-l border-indigo-800 dark:border-indigo-700">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setClothCounts(prev => {
+                            const newCounts = { ...prev };
+                            if (newCounts[type] > 1) newCounts[type] -= 1;
+                            else delete newCounts[type];
+                            return newCounts;
+                          });
+                        }}
+                        className="px-2 md:px-3 py-1 hover:bg-indigo-800 transition-colors h-full flex items-center justify-center font-black"
+                      >
+                        -
+                      </button>
+                      <span className="w-4 md:w-6 text-center font-black">{count}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setClothCounts(prev => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
+                        }}
+                        className="px-2 md:px-3 py-1 hover:bg-indigo-800 transition-colors h-full flex items-center justify-center font-black"
+                      >
+                        +
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          {clothType.includes('Other') && (
+          {clothCounts['Other'] && (
             <div className="mt-3 md:mt-5 animate-in fade-in slide-in-from-top-2">
               <label className="block text-gray-800 dark:text-gray-300 font-bold text-sm md:text-lg mb-1.5 md:mb-3">{t('custom_cloth')}</label>
               <VoiceInput
@@ -209,7 +259,7 @@ export default function AddOrder() {
                 onChange={setCustomCloth}
                 placeholder={t('custom_cloth_ph')}
                 className="w-full text-sm md:text-xl p-3 md:p-5 border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl md:rounded-2xl focus:bg-white dark:focus:bg-[#1e1e1e] focus:border-indigo-500 focus:ring-2 md:focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition-all font-bold text-gray-900 dark:text-white"
-                required={clothType.includes('Other')}
+                required={!!clothCounts['Other']}
               />
             </div>
           )}

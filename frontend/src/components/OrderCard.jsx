@@ -34,6 +34,7 @@ const getClothTypesArray = (clothType) => {
 
 export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDelete }) {
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
+  const [showFabricModal, setShowFabricModal] = useState(false);
   const { t } = useApp();
   const isCompleted = order.status === 'DELIVERED';
   const tailor = tailors.find(tObj => tObj.id == order.tailor_id || tObj.name === order.tailor_id) || { name: t('unassigned') };
@@ -57,9 +58,12 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
       <div className="flex gap-2.5 w-full min-w-0">
 
         {/* Fabric image – strict 60×60 */}
-        <div className="w-[56px] h-[56px] md:w-[68px] md:h-[68px] rounded-lg bg-gray-100 dark:bg-black/40 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+        <div 
+          className={`w-[56px] h-[56px] md:w-[68px] md:h-[68px] rounded-lg bg-gray-100 dark:bg-black/40 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center ${order.image_url ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
+          onClick={() => { if(order.image_url) setShowFabricModal(true); }}
+        >
           {order.image_url
-            ? <img loading="lazy" src={getImageUrl(order.image_url)} alt="Fabric" className="w-full h-full object-cover" />
+            ? <img loading="lazy" src={getImageUrl(order.image_url)} alt="Fabric" className="w-full h-full object-cover pointer-events-none" />
             : <Camera size={18} className="text-gray-400" />
           }
         </div>
@@ -200,6 +204,24 @@ export default function OrderCard({ order, tailors, onUpdateStatus, onEdit, onDe
           <img 
             src={getImageUrl(order.measurement_image_url)} 
             alt="Measurement Fullscreen" 
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
+      {/* ── Fabric Fullscreen Modal ── */}
+      {showFabricModal && order.image_url && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#000000e6] p-4 backdrop-blur-sm" onClick={() => setShowFabricModal(false)}>
+          <button 
+            className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 z-[101] transition-colors"
+            onClick={(e) => { e.stopPropagation(); setShowFabricModal(false); }}
+          >
+            <X size={24} />
+          </button>
+          <img 
+            src={getImageUrl(order.image_url)} 
+            alt="Fabric Fullscreen" 
             className="max-w-full max-h-full object-contain"
             onClick={(e) => e.stopPropagation()}
           />
