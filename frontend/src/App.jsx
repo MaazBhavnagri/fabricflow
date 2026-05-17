@@ -122,6 +122,22 @@ function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [lang, setLang] = useState(() => localStorage.getItem('app_lang') || 'en');
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('app_authenticated') === 'true';
+  });
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState('');
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (passwordInput === 'abdullah') {
+      localStorage.setItem('app_authenticated', 'true');
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError(lang === 'gu' ? 'ખોટો પાસવર્ડ!' : lang === 'hn' ? 'गलत पासवर्ड!' : 'Incorrect password!');
+    }
+  };
 
   // Theme effect
   useEffect(() => {
@@ -156,6 +172,69 @@ function App() {
   const t = (key) => translations[lang]?.[key] || translations['en']?.[key] || key;
 
   const contextValue = { lang, theme, t };
+
+  if (!isAuthenticated) {
+    return (
+      <AppContext.Provider value={contextValue}>
+        <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-200 ${theme === 'dark' ? 'bg-[#121212] text-white' : 'bg-gray-50 text-gray-900'}`}>
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-[#252525] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors border-none cursor-pointer"
+              title="Toggle theme"
+            >
+              {theme === 'dark'
+                ? <Sun size={16} className="text-yellow-400" />
+                : <Moon size={16} className="text-indigo-500" />
+              }
+            </button>
+          </div>
+          <div className="w-full max-w-md bg-white dark:bg-[#181818] rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 dark:border-gray-800 p-6 md:p-10 space-y-6 md:space-y-8 relative overflow-hidden transition-all duration-300">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="text-center space-y-2 md:space-y-3">
+              <div className="mx-auto w-12 h-12 md:w-16 md:h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner animate-pulse">
+                <Scissors size={24} className="md:w-8 md:h-8 rotate-90" />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-gray-100 uppercase">
+                FabricFlow
+              </h1>
+              <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500">
+                {lang === 'gu' ? 'કૃપા કરીને આગળ વધવા માટે પાસવર્ડ દાખલ કરો' : lang === 'hn' ? 'कृपया आगे बढ़ने के लिए पासवर्ड दर्ज करें' : 'Please enter password to continue'}
+              </p>
+            </div>
+            <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
+              <div>
+                <input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    if (authError) setAuthError('');
+                  }}
+                  placeholder={lang === 'gu' ? 'પાસવર્ડ લખો...' : lang === 'hn' ? 'पासवर्ड दर्ज करें...' : 'Enter password...'}
+                  className="w-full text-center text-base md:text-xl p-3 md:p-5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#252525] rounded-xl md:rounded-2xl focus:bg-white dark:focus:bg-[#1e1e1e] focus:border-indigo-500 focus:ring-2 md:focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 font-bold text-gray-900 dark:text-white tracking-widest"
+                  autoFocus
+                  required
+                />
+                {authError && (
+                  <div className="mt-2 text-center text-xs md:text-sm font-extrabold text-red-500 dark:text-red-400 animate-bounce">
+                    ⚠️ {authError}
+                  </div>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold md:font-black py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-lg flex items-center justify-center gap-2 active:scale-95 transition-all outline-none shadow-sm md:shadow-md border-none cursor-pointer"
+              >
+                {lang === 'gu' ? 'પ્રવેશ કરો' : lang === 'hn' ? 'लॉगिन करें' : 'Login'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </AppContext.Provider>
+    );
+  }
 
   return (
     <AppContext.Provider value={contextValue}>
